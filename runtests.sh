@@ -5,6 +5,14 @@ set -x
 
 COVERAGE_THRESHOLD=90
 
+export TERM=xterm
+
+# set up terminal colors
+RED=$(tput bold && tput setaf 1)
+GREEN=$(tput bold && tput setaf 2)
+YELLOW=$(tput bold && tput setaf 3)
+NORMAL=$(tput sgr0)
+
 
 echo "Create Virtualenv for Python deps ..."
 function prepare_venv() {
