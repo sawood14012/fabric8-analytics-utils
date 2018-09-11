@@ -99,7 +99,7 @@ def get_versions_for_maven_package(package_name):
                 ok = True  # We successfully downloaded the file
                 version_elements = metadata_xml.findall('.//version')
                 versions = versions.union({x.text for x in version_elements})
-            except (OSError, etree.XMLSyntaxError) as e:
+            except (OSError, etree.XMLSyntaxError):
                 # Not both XML files have to exist, so don't freak out yet
                 pass
 
