@@ -15,6 +15,9 @@ def get_versions_for_ep(ecosystem, package_name):
     :param package_name: str, package name
     :return list, list of versions
     """
+    if package_name is None:
+        raise ValueError('Package name is not provided')
+
     if ecosystem == 'npm':
         return get_versions_for_npm_package(package_name)
     if ecosystem == 'pypi':
