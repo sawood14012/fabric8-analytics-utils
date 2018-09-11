@@ -142,3 +142,19 @@ def test_get_versions_for_ep_bad_ecosystem():
     """Test get_versions_for_ep for unsupported ecosystem."""
     with pytest.raises(ValueError):
         get_versions_for_ep("cobol", "cds-parsers")
+
+
+def test_get_versions_for_ep_no_package():
+    """Test get_versions_for_ep for no package provided."""
+    with pytest.raises(ValueError):
+        get_versions_for_ep("maven", None)
+    with pytest.raises(ValueError):
+        get_versions_for_ep("npm", None)
+    with pytest.raises(ValueError):
+        get_versions_for_ep("pypi", None)
+
+
+def test_get_versions_for_ep_no_ecosystem():
+    """Test get_versions_for_ep for no ecosystem provided."""
+    with pytest.raises(ValueError):
+        get_versions_for_ep(None, "cds-parsers")
