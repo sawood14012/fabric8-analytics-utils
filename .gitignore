@@ -127,3 +127,6 @@ pip-selfcheck.json
 
 ### IDEs
 .idea/
+html/
+latex/
+
