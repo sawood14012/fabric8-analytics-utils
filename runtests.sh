@@ -40,5 +40,7 @@ $(which pip3) install pytest
 $(which pip3) install pytest-cov
 
 PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=`pwd` python3 "$(which pytest)" --cov=f8a_utils/ --cov-report term-missing --cov-fail-under=$COVERAGE_THRESHOLD -vv tests/
+
+codecov --token=1073459c-863a-4ff3-9847-8acbeaeb25e1
 printf "%stests passed%s\n\n" "${GREEN}" "${NORMAL}"
 
