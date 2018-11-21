@@ -18,6 +18,7 @@ def get_versions_for_ep(ecosystem, package_name):
     if package_name is None:
         raise ValueError('Package name is not provided')
 
+    # check against the supported ecosystems
     if ecosystem == 'npm':
         return get_versions_for_npm_package(package_name)
     if ecosystem == 'pypi':
