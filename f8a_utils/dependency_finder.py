@@ -1,7 +1,6 @@
 """Definition of a class to find dependencies from an input manifest file."""
 
 import json
-from pathlib import Path
 
 
 class DependencyFinder():
