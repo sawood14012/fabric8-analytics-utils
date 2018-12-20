@@ -34,6 +34,9 @@ class DependencyFinder():
             resolved = []
             data = manifest['content']
 
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
+
             module = ''
             for line in data.split("\n"):
                 if "->" in line:
