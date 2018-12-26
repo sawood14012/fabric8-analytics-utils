@@ -129,7 +129,12 @@ class DependencyFinder():
                 "manifest_file": manifest['filename']
             }
 
-            dependencies = json.loads(manifest['content']).get('dependencies')
+            data = manifest['content']
+
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
+
+            dependencies = json.loads(data).get('dependencies')
             resolved = []
             if dependencies:
                 for key, val in dependencies.items():
@@ -182,7 +187,11 @@ class DependencyFinder():
                 "manifest_file_path": manifest['filepath'],
                 "manifest_file": manifest['filename']
             }
-            content = json.loads(manifest['content'])
+            data = manifest['content']
+
+            if isinstance(data, bytes):
+                data = data.decode("utf-8")
+            content = json.loads(data)
             dep['_resolved'] = content
             details.append(dep)
             details_json = {"details": details}
