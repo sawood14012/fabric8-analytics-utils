@@ -40,8 +40,8 @@ def test_scan_and_find_dependencies_maven():
     res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
     assert "result" in res
     resolved = res['result'][0]['details'][0]['_resolved'][0]
-    assert resolved['package'] == "io.vertx:vertx-service-discovery"
-    assert len(resolved['deps']) == 16
+    assert resolved['package'] == "io.vertx:vertx-core"
+    assert len(resolved['deps']) == 15
 
 
 if __name__ == '__main__':
