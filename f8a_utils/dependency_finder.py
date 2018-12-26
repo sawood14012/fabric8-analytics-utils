@@ -97,7 +97,8 @@ class DependencyFinder():
              'artifactId': '',
              'packaging': '',
              'version': '',
-             'classifier': ''}
+             'classifier': '',
+             'scope': ''}
 
         ncolons = coordinates_str.count(':')
         if ncolons == 1:
@@ -111,6 +112,10 @@ class DependencyFinder():
             # groupId:artifactId:packaging:version:classifier
             a['groupId'], a['artifactId'], a['packaging'], a['version'], a['classifier'] = \
                 coordinates_str.split(':')
+        elif ncolons == 5:
+            # groupId:artifactId:packaging:classifier:version:scope
+            a['groupId'], a['artifactId'], a['packaging'], a['classifier'], a['version'], \
+                a['scope'] = coordinates_str.split(':')
         else:
             raise ValueError('Invalid Maven coordinates %s', coordinates_str)
 
