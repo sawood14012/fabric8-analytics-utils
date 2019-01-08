@@ -3,7 +3,7 @@
 set -e
 set -x
 
-COVERAGE_THRESHOLD=90
+COVERAGE_THRESHOLD=95
 
 export TERM=xterm
 
