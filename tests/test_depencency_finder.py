@@ -110,6 +110,7 @@ def test_scan_and_find_dependencies_maven_invalid_coordinates():
     }]
     with pytest.raises(ValueError):
         res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+        assert res
 
 
 if __name__ == '__main__':
