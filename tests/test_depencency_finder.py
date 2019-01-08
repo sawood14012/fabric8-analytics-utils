@@ -2,6 +2,7 @@
 
 from f8a_utils.dependency_finder import DependencyFinder
 from pathlib import Path
+import pytest
 
 
 def test_scan_and_find_dependencies_npm():
@@ -85,6 +86,32 @@ def test_scan_and_find_dependencies_maven_manifest_as_bytes():
     assert len(resolved['deps']) == 15
 
 
+def test_scan_and_find_dependencies_maven_various_ncols():
+    """Test scan_and_find_dependencies function for maven."""
+    manifests = [{
+        "filename": "dependencies.txt",
+        "filepath": "/bin/local",
+        "content": open(str(Path(__file__).parent / "data/dependencies_various_ncols.txt")).read()
+    }]
+    res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+    assert "result" in res
+    resolved = res['result'][0]['details'][0]['_resolved'][0]
+    assert resolved['package'] == "io.vertx:vertx-core"
+    assert len(resolved['deps']) == 15
+
+
+def test_scan_and_find_dependencies_maven_invalid_coordinates():
+    """Test scan_and_find_dependencies function for maven."""
+    manifests = [{
+        "filename": "dependencies.txt",
+        "filepath": "/bin/local",
+        "content":
+        open(str(Path(__file__).parent / "data/dependencies_invalid_coordinates.txt")).read()
+    }]
+    with pytest.raises(ValueError):
+        res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+
+
 if __name__ == '__main__':
     test_scan_and_find_dependencies_npm()
     test_scan_and_find_dependencies_npm_npm_list_as_bytes()
@@ -92,3 +119,5 @@ if __name__ == '__main__':
     test_scan_and_find_dependencies_pypi_pylist_as_bytes()
     test_scan_and_find_dependencies_maven()
     test_scan_and_find_dependencies_maven_manifest_as_bytes()
+    test_scan_and_find_dependencies_maven_various_ncols()
+    test_scan_and_find_dependencies_maven_invalid_coordinates()
