@@ -6,7 +6,7 @@ import pytest
 
 
 def test_scan_and_find_dependencies_npm():
-    """Test scan_and_find_dependencies function."""
+    """Test scan_and_find_dependencies function for NPM."""
     manifests = [{
         "filename": "npmlist.json",
         "filepath": "/bin/local",
@@ -19,7 +19,7 @@ def test_scan_and_find_dependencies_npm():
 
 
 def test_scan_and_find_dependencies_npm_npm_list_as_bytes():
-    """Test scan_and_find_dependencies function."""
+    """Test scan_and_find_dependencies function for NPM."""
     manifests = [{
         "filename": "npmlist.json",
         "filepath": "/bin/local",
@@ -32,7 +32,7 @@ def test_scan_and_find_dependencies_npm_npm_list_as_bytes():
 
 
 def test_scan_and_find_dependencies_pypi():
-    """Test scan_and_find_dependencies function for pypi."""
+    """Test scan_and_find_dependencies function for PyPi."""
     manifests = [{
         "filename": "pylist.json",
         "filepath": "/bin/local",
@@ -45,7 +45,7 @@ def test_scan_and_find_dependencies_pypi():
 
 
 def test_scan_and_find_dependencies_pypi_pylist_as_bytes():
-    """Test scan_and_find_dependencies function for pypi."""
+    """Test scan_and_find_dependencies function for PyPi."""
     manifests = [{
         "filename": "pylist.json",
         "filepath": "/bin/local",
@@ -58,7 +58,7 @@ def test_scan_and_find_dependencies_pypi_pylist_as_bytes():
 
 
 def test_scan_and_find_dependencies_maven():
-    """Test scan_and_find_dependencies function for maven."""
+    """Test scan_and_find_dependencies function for Maven."""
     manifests = [{
         "filename": "dependencies.txt",
         "filepath": "/bin/local",
@@ -72,7 +72,7 @@ def test_scan_and_find_dependencies_maven():
 
 
 def test_scan_and_find_dependencies_maven_manifest_as_bytes():
-    """Test scan_and_find_dependencies function for maven."""
+    """Test scan_and_find_dependencies function for Maven."""
     # file containing content should be opened as binary stream
     manifests = [{
         "filename": "dependencies.txt",
@@ -87,7 +87,7 @@ def test_scan_and_find_dependencies_maven_manifest_as_bytes():
 
 
 def test_scan_and_find_dependencies_maven_various_ncols():
-    """Test scan_and_find_dependencies function for maven."""
+    """Test scan_and_find_dependencies function for Maven."""
     manifests = [{
         "filename": "dependencies.txt",
         "filepath": "/bin/local",
@@ -101,7 +101,7 @@ def test_scan_and_find_dependencies_maven_various_ncols():
 
 
 def test_scan_and_find_dependencies_maven_invalid_coordinates():
-    """Test scan_and_find_dependencies function for maven."""
+    """Test scan_and_find_dependencies function for Maven."""
     manifests = [{
         "filename": "dependencies.txt",
         "filepath": "/bin/local",
