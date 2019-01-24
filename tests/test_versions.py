@@ -7,7 +7,8 @@ from f8a_utils.versions import (
     get_versions_for_npm_package,
     get_versions_for_pypi_package,
     get_versions_for_maven_package,
-    get_versions_for_ep
+    get_versions_for_ep,
+    get_latest_versions_for_ep
 )
 
 
@@ -158,3 +159,22 @@ def test_get_versions_for_ep_no_ecosystem():
     """Test get_versions_for_ep for no ecosystem provided."""
     with pytest.raises(ValueError):
         get_versions_for_ep(None, "cds-parsers")
+
+
+def test_get_latest_versions_for_ep():
+    """Test basic behavior of function get_latest_versions_for_ep."""
+    package_versions = get_latest_versions_for_ep("maven", "tomcat:catalina")
+    assert package_versions is not None
+
+    package_versions = get_latest_versions_for_ep("pypi", "numpy")
+    assert package_versions is not None
+
+    package_versions = get_latest_versions_for_ep("npm", "array")
+    assert package_versions is not None
+
+    with pytest.raises(ValueError):
+        get_latest_versions_for_ep("cobol", "cds-parsers")
+
+    with pytest.raises(ValueError):
+        get_latest_versions_for_ep("maven", None)
+

@@ -4,6 +4,7 @@ import requests
 import logging
 from urllib.request import urlopen
 from lxml import etree
+from f8a_version_comparator.comparable_version import ComparableVersion
 
 _logger = logging.getLogger(__name__)
 
@@ -29,10 +30,34 @@ def get_versions_for_ep(ecosystem, package_name):
         raise ValueError('Unsupported ecosystem: {e}'.format(e=ecosystem))
 
 
-def get_versions_for_npm_package(package_name):
+def get_latest_versions_for_ep(ecosystem, package_name):
+    """Get all versions for given (ecosystem, package).
+
+    :param ecosystem: str, ecosystem name
+    :param package_name: str, package name
+    :return version
+    """
+    if package_name is None:
+        raise ValueError('Package name is not provided')
+
+    # check against the supported ecosystems
+    if ecosystem == 'npm':
+        version = get_versions_for_npm_package(package_name, True)
+    elif ecosystem == 'pypi':
+        version = get_versions_for_pypi_package(package_name, True)
+    elif ecosystem == 'maven':
+        versions = get_versions_for_maven_package(package_name)
+        version = select_latest_version(versions)
+    else:
+        raise ValueError('Unsupported ecosystem: {e}'.format(e=ecosystem))
+    return version
+
+
+def get_versions_for_npm_package(package_name, latest=False):
     """Get all versions for given NPM package.
 
     :param package_name: str, package name
+    :param latest: boolean value, to return only the latest version
     :return list, list of versions
     """
     url = 'https://registry.npmjs.org/{pkg_name}'.format(
@@ -55,16 +80,17 @@ def get_versions_for_npm_package(package_name):
     finally:
         if not response_json:
             return []
-
+    if latest:
+        return response_json.get('dist-tags', {})['latest']
     versions = {x for x in response_json.get('versions', {})}
-
     return list(versions)
 
 
-def get_versions_for_pypi_package(package_name):
+def get_versions_for_pypi_package(package_name, latest=False):
     """Get all versions for given PyPI package.
 
     :param package_name: str, package name
+    :param latest: boolean value, to return only the latest version
     :return list, list of versions
     """
     pypi_package_url = 'https://pypi.python.org/pypi/{pkg_name}/json'.format(
@@ -78,6 +104,8 @@ def get_versions_for_pypi_package(package_name):
         )
         return []
 
+    if latest:
+        return response.json().get('info', {})['version']
     return list({x for x in response.json().get('releases', {})})
 
 
@@ -116,3 +144,12 @@ def get_versions_for_maven_package(package_name):
     except ValueError:
         # wrong package specification etc.
         return []
+
+
+def select_latest_version(versions=[]):
+    """Select latest version from list."""
+    version_arr = []
+    for x in versions:
+        version_arr.append(ComparableVersion(x))
+    version_arr.sort()
+    return version_arr[-1]
