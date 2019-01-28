@@ -166,6 +166,9 @@ def test_get_latest_versions_for_ep():
     package_versions = get_latest_versions_for_ep("maven", "tomcat:catalina")
     assert package_versions is not None
 
+    package_versions = get_latest_versions_for_ep("maven", "org.abcl:abcl")
+    assert package_versions is not None
+
     package_versions = get_latest_versions_for_ep("pypi", "numpy")
     assert package_versions is not None
 
@@ -177,4 +180,3 @@ def test_get_latest_versions_for_ep():
 
     with pytest.raises(ValueError):
         get_latest_versions_for_ep("maven", None)
-

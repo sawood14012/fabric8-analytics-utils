@@ -46,8 +46,7 @@ def get_latest_versions_for_ep(ecosystem, package_name):
     elif ecosystem == 'pypi':
         version = get_versions_for_pypi_package(package_name, True)
     elif ecosystem == 'maven':
-        versions = get_versions_for_maven_package(package_name)
-        version = select_latest_version(versions)
+        version = get_versions_for_maven_package(package_name, True)
     else:
         raise ValueError('Unsupported ecosystem: {e}'.format(e=ecosystem))
     return version
@@ -80,10 +79,12 @@ def get_versions_for_npm_package(package_name, latest=False):
     finally:
         if not response_json:
             return []
+    ver_list = list({x for x in response_json.get('versions', {})})
     if latest:
-        return response_json.get('dist-tags', {})['latest']
-    versions = {x for x in response_json.get('versions', {})}
-    return list(versions)
+        version = response_json.get('dist-tags', {})['latest'] if \
+            response_json.get('dist-tags', {}) else select_latest_version(ver_list)
+        return version
+    return ver_list
 
 
 def get_versions_for_pypi_package(package_name, latest=False):
@@ -104,15 +105,20 @@ def get_versions_for_pypi_package(package_name, latest=False):
         )
         return []
 
+    ver_list = list({x for x in response.json().get('releases', {})})
+
     if latest:
-        return response.json().get('info', {})['version']
-    return list({x for x in response.json().get('releases', {})})
+        version = response.json().get('info', {})['version'] if \
+            'version' in response.json().get('info', {}) else select_latest_version(ver_list)
+        return version
+    return ver_list
 
 
-def get_versions_for_maven_package(package_name):
+def get_versions_for_maven_package(package_name, latest=False):
     """Get all versions for given package from Maven Central.
 
     :param package_name: str, package name
+    :param latest: boolean value, to return only the latest version
     :return list, list of versions
     """
     try:
@@ -130,6 +136,8 @@ def get_versions_for_maven_package(package_name):
                 metadata_xml = etree.parse(urlopen(url))
                 ok = True  # We successfully downloaded the file
                 version_elements = metadata_xml.findall('.//version')
+                version = metadata_xml.findall('.//release')[0].text if \
+                    metadata_xml.findall('.//release') else None
                 versions = versions.union({x.text for x in version_elements})
             except (OSError, etree.XMLSyntaxError):
                 # Not both XML files have to exist, so don't freak out yet
@@ -139,7 +147,9 @@ def get_versions_for_maven_package(package_name):
             _logger.error(
                 'Unable to fetch versions for package {pkg_name}'.format(pkg_name=package_name)
             )
-
+        if latest:
+            version = version if version else select_latest_version(list(versions))
+            return version
         return list(versions)
     except ValueError:
         # wrong package specification etc.
