@@ -136,8 +136,8 @@ def get_versions_for_maven_package(package_name, latest=False):
                 metadata_xml = etree.parse(urlopen(url))
                 ok = True  # We successfully downloaded the file
                 version_elements = metadata_xml.findall('.//version')
-                version = metadata_xml.findall('.//release')[0].text if \
-                    metadata_xml.findall('.//release') else None
+                version = metadata_xml.find('.//release').text if \
+                    metadata_xml.find('.//release') is not None else None
                 versions = versions.union({x.text for x in version_elements})
             except (OSError, etree.XMLSyntaxError):
                 # Not both XML files have to exist, so don't freak out yet
