@@ -162,4 +162,4 @@ def select_latest_version(versions=[]):
     for x in versions:
         version_arr.append(ComparableVersion(x))
     version_arr.sort()
-    return version_arr[-1]
+    return str(version_arr[-1])
