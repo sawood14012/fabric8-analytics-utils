@@ -79,7 +79,13 @@ def get_versions_for_npm_package(package_name, latest=False):
     finally:
         if not response_json:
             return []
-    ver_list = list({x for x in response_json.get('versions', {})})
+    if response_json.get('versions'):
+        ver_list = list({x for x in response_json.get('versions', {})})
+    elif response_json.get('time'):
+        ver_list = []
+        for x in response_json.get('time'):
+            if x != "modified" and x != "created":
+                ver_list.append(x)
     if latest:
         version = response_json.get('dist-tags', {})['latest'] if \
             response_json.get('dist-tags', {}) else select_latest_version(ver_list)
@@ -128,6 +134,7 @@ def get_versions_for_maven_package(package_name, latest=False):
         filenames = {'maven-metadata.xml', 'maven-metadata-local.xml'}
 
         versions = set()
+        version = ""
         ok = False
         for filename in filenames:
 
@@ -158,6 +165,8 @@ def get_versions_for_maven_package(package_name, latest=False):
 
 def select_latest_version(versions=[]):
     """Select latest version from list."""
+    if len(versions) == 0:
+        return ""
     version_arr = []
     for x in versions:
         version_arr.append(ComparableVersion(x))
