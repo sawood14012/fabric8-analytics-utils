@@ -7,19 +7,20 @@ class DependencyFinder():
     """Implementation of methods to find dependencies from manifest file."""
 
     @staticmethod
-    def scan_and_find_dependencies(ecosystem, manifests):
+    def scan_and_find_dependencies(ecosystem, manifests, show_transitive):
         """Scan the dependencies files to fetch transitive deps."""
+        show_transitive = show_transitive == "true"
         deps = dict()
         if ecosystem == "npm":
-            deps = DependencyFinder.get_npm_dependencies(ecosystem, manifests)
+            deps = DependencyFinder.get_npm_dependencies(ecosystem, manifests, show_transitive)
         elif ecosystem == "pypi":
             deps = DependencyFinder.get_pypi_dependencies(ecosystem, manifests)
         elif ecosystem == "maven":
-            deps = DependencyFinder.get_maven_dependencies(ecosystem, manifests)
+            deps = DependencyFinder.get_maven_dependencies(ecosystem, manifests, show_transitive)
         return deps
 
     @staticmethod
-    def get_maven_dependencies(ecosystem, manifests):
+    def get_maven_dependencies(ecosystem, manifests, show_transitive):
         """Scan the maven dependencies files to fetch transitive deps."""
         deps = {}
         result = []
@@ -48,10 +49,11 @@ class DependencyFinder():
                         transitive = []
                         trans = []
                         direct.append(suffix)
-                        transitive = DependencyFinder.get_maven_transitives(data,
-                                                                            transitive,
-                                                                            suffix,
-                                                                            trans)
+                        if show_transitive is True:
+                            transitive = DependencyFinder.get_maven_transitives(data,
+                                                                                transitive,
+                                                                                suffix,
+                                                                                trans)
                         tmp_json = {
                             "package": parsed_json['groupId'] + ":" + parsed_json['artifactId'],
                             "version": parsed_json['version'],
@@ -122,7 +124,7 @@ class DependencyFinder():
         return a
 
     @staticmethod
-    def get_npm_dependencies(ecosystem, manifests):
+    def get_npm_dependencies(ecosystem, manifests, show_transitive):
         """Scan the npm dependencies files to fetch transitive deps."""
         deps = {}
         result = []
@@ -146,10 +148,12 @@ class DependencyFinder():
                     version = val.get('version') or val.get('required').get('version')
                     if version:
                         transitive = []
-                        tr_deps = val.get('dependencies') or \
-                            val.get('required', {}).get('dependencies')
-                        if tr_deps:
-                            transitive = DependencyFinder.get_npm_transitives(transitive, tr_deps)
+                        if show_transitive is True:
+                            tr_deps = val.get('dependencies') or \
+                                val.get('required', {}).get('dependencies')
+                            if tr_deps:
+                                transitive = DependencyFinder.get_npm_transitives(transitive,
+                                                                                  tr_deps)
                         tmp_json = {
                             "package": key,
                             "version": version,
