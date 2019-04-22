@@ -12,7 +12,7 @@ def test_scan_and_find_dependencies_npm():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/npmlist.json")).read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("npm", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("npm", manifests, "true")
     assert "result" in res
     assert res['result'][0]['details'][0]['_resolved'][0]['package'] == "body-parser"
     assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 2
@@ -25,10 +25,10 @@ def test_scan_and_find_dependencies_npm_npm_list_as_bytes():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/npmlist.json"), "rb").read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("npm", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("npm", manifests, "false")
     assert "result" in res
     assert res['result'][0]['details'][0]['_resolved'][0]['package'] == "body-parser"
-    assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 2
+    assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 0
 
 
 def test_scan_and_find_dependencies_pypi():
@@ -38,7 +38,7 @@ def test_scan_and_find_dependencies_pypi():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/pylist.json")).read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("pypi", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("pypi", manifests, "false")
     assert "result" in res
     assert res['result'][0]['details'][0]['_resolved'][0]['package'] == "django"
     assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 1
@@ -51,7 +51,7 @@ def test_scan_and_find_dependencies_pypi_pylist_as_bytes():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/pylist.json"), "rb").read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("pypi", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("pypi", manifests, "true")
     assert "result" in res
     assert res['result'][0]['details'][0]['_resolved'][0]['package'] == "django"
     assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 1
@@ -64,7 +64,7 @@ def test_scan_and_find_dependencies_maven():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/dependencies.txt")).read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("maven", manifests, "true")
     assert "result" in res
     resolved = res['result'][0]['details'][0]['_resolved'][0]
     assert resolved['package'] == "io.vertx:vertx-core"
@@ -79,11 +79,11 @@ def test_scan_and_find_dependencies_maven_manifest_as_bytes():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/dependencies.txt"), "rb").read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("maven", manifests, "false")
     assert "result" in res
     resolved = res['result'][0]['details'][0]['_resolved'][0]
     assert resolved['package'] == "io.vertx:vertx-core"
-    assert len(resolved['deps']) == 15
+    assert len(resolved['deps']) == 0
 
 
 def test_scan_and_find_dependencies_maven_various_ncols():
@@ -93,7 +93,7 @@ def test_scan_and_find_dependencies_maven_various_ncols():
         "filepath": "/bin/local",
         "content": open(str(Path(__file__).parent / "data/dependencies_various_ncols.txt")).read()
     }]
-    res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+    res = DependencyFinder().scan_and_find_dependencies("maven", manifests, "true")
     assert "result" in res
     resolved = res['result'][0]['details'][0]['_resolved'][0]
     assert resolved['package'] == "io.vertx:vertx-core"
@@ -109,7 +109,7 @@ def test_scan_and_find_dependencies_maven_invalid_coordinates():
         open(str(Path(__file__).parent / "data/dependencies_invalid_coordinates.txt")).read()
     }]
     with pytest.raises(ValueError):
-        res = DependencyFinder().scan_and_find_dependencies("maven", manifests)
+        res = DependencyFinder().scan_and_find_dependencies("maven", manifests, "true")
         assert res
 
 
