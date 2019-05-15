@@ -1,6 +1,6 @@
 #!/bin/bash
 
-directories="f8a_utils tests"
+directories="f8a_utils tests tools"
 separate_files="setup.py"
 
 pass=0
