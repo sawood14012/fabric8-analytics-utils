@@ -178,6 +178,15 @@ def test_get_latest_versions_for_ep():
     package_versions = get_latest_versions_for_ep("npm", "lerna-tt-pk2-sy")
     assert package_versions is not None
 
+    package_versions = get_latest_versions_for_ep("npm", "abyzdeopkl")
+    assert not package_versions
+
+    package_versions = get_latest_versions_for_ep("maven", "abyzdeopkl")
+    assert not package_versions
+
+    package_versions = get_latest_versions_for_ep("pypi", "abyzdeopkl")
+    assert not package_versions
+
     with pytest.raises(ValueError):
         get_latest_versions_for_ep("cobol", "cds-parsers")
 
