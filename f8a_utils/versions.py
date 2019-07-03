@@ -88,7 +88,7 @@ def get_versions_for_npm_package(package_name, latest=False):
                 ver_list.append(x)
     if latest:
         version = response_json.get('dist-tags', {})['latest'] if \
-            response_json.get('dist-tags', {}) else select_latest_version(ver_list)
+            'latest' in response_json.get('dist-tags', {}) else select_latest_version(ver_list)
         return version
     return ver_list
 
