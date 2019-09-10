@@ -1,7 +1,11 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+pushd "${SCRIPT_DIR}/.."
+
 function prepare_venv() {
-    VIRTUALENV="$(which virtualenv)"
+    VIRTUALENV=$(which virtualenv)
     if [ $? -eq 1 ]; then
         # python34 which is in CentOS does not have virtualenv binary
         VIRTUALENV="$(which virtualenv-3)"
@@ -17,14 +21,16 @@ function prepare_venv() {
 
 [ "$NOVENV" == "1" ] || prepare_venv || exit 1
 
-radon mi -s -i venv .
+radon cc -s -a -i venv .
+
+popd
 
 if [[ "$1" == "--fail-on-error" ]]
 then
-    defects="$(radon mi -s -n B -i venv . | wc -l)"
+    defects="$(radon cc -s -n D -i venv . | wc -l)"
     if [[ $defects -gt 0 ]]
     then
-        echo "File(s) with too low maintainability index detected!"
+        echo "File(s) with too high cyclomatic complexity detected!"
         exit 1
     fi
 fi

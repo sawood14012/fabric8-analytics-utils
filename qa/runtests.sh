@@ -1,5 +1,9 @@
 #!/bin/bash
 
+SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
+
+pushd "${SCRIPT_DIR}/.." > /dev/null
+
 set -e
 set -x
 
@@ -51,3 +55,5 @@ PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=`pwd` python3 "$(which pytest)" --cov=f8a_u
 codecov --token=1073459c-863a-4ff3-9847-8acbeaeb25e1
 printf "%stests passed%s\n\n" "${GREEN}" "${NORMAL}"
 
+
+popd > /dev/null
