@@ -121,7 +121,7 @@ def test_get_java_versions():
     assert "4.0.4" in package_versions
 
     package_versions = get_versions_for_maven_package(
-        "it is hard to specify package that does not exist:foobar"
+        "it_is_hard_to_specify_package_that_does_not_exist:foobar"
     )
     assert package_versions is not None
 
