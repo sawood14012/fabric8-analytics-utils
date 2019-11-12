@@ -8,8 +8,30 @@ from f8a_utils.versions import (
     get_versions_for_pypi_package,
     get_versions_for_maven_package,
     get_versions_for_ep,
-    get_latest_versions_for_ep
+    get_latest_versions_for_ep,
+    is_pkg_public
 )
+
+
+def test_is_pkg_public():
+    """Test is_pkg_public function."""
+    val = is_pkg_public("npm", "lodash")
+    assert val is True
+
+    val = is_pkg_public("maven", "io.vertx:vertx-web")
+    assert val is True
+
+    val = is_pkg_public("pypi", "scipy")
+    assert val is True
+
+    val = is_pkg_public("npm", "lodashssss")
+    assert val is False
+
+    val = is_pkg_public("maven", "io.vertx:vertx-webssss")
+    assert val is False
+
+    val = is_pkg_public("pypi", "scipyssss")
+    assert val is False
 
 
 def test_get_versions_for_npm_package():

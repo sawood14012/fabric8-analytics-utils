@@ -30,6 +30,14 @@ def get_versions_for_ep(ecosystem, package_name):
         raise ValueError('Unsupported ecosystem: {e}'.format(e=ecosystem))
 
 
+def is_pkg_public(ecosystem, package_name):
+    """Check if a pkg is publicly available."""
+    version = get_versions_for_ep(ecosystem, package_name)
+    if version:
+        return True
+    return False
+
+
 def get_latest_versions_for_ep(ecosystem, package_name):
     """Get all versions for given (ecosystem, package).
 
@@ -66,7 +74,7 @@ def get_versions_for_npm_package(package_name, latest=False):
     response = requests.get(url)
 
     if response.status_code != 200:
-        _logger.error(
+        _logger.info(
             'Unable to fetch versions for package {pkg_name}'.format(pkg_name=package_name)
         )
         return []
@@ -106,7 +114,7 @@ def get_versions_for_pypi_package(package_name, latest=False):
 
     response = requests.get(pypi_package_url)
     if response.status_code != 200:
-        _logger.error(
+        _logger.info(
             'Unable to fetch versions for package {pkg_name}'.format(pkg_name=package_name)
         )
         return []
@@ -151,7 +159,7 @@ def get_versions_for_maven_package(package_name, latest=False):
                 pass
 
         if not ok:
-            _logger.error(
+            _logger.info(
                 'Unable to fetch versions for package {pkg_name}'.format(pkg_name=package_name)
             )
         if latest:
