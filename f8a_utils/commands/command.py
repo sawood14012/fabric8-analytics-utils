@@ -12,7 +12,7 @@ class ExternalCommand(object):
     """Wrapper around subprocess.Popen(), for running external commands easily."""
 
     def __init__(self, cmd):
-        """Constructor.
+        """Function for default value.
 
         :param cmd: list, command to be executed
         """
