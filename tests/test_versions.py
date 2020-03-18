@@ -36,11 +36,14 @@ def test_is_pkg_public():
 
 def test_get_versions_for_npm_package():
     """Test basic behavior of the function get_versions_for_npm_package."""
-    package_versions = get_versions_for_npm_package("array")
+    package_versions = get_versions_for_npm_package("stream-combine")
     assert package_versions is not None
 
     # good old version 0.4.0 should be reported
-    assert "0.4.0" in package_versions
+    assert "1.0.0" in package_versions
+
+    # good old version 0.4.0 should be reported
+    assert "2.0.2" in package_versions
 
     package_versions = get_versions_for_npm_package(
         "it is hard to specify package that does not exist"

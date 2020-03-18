@@ -90,10 +90,11 @@ def get_versions_for_npm_package(package_name, latest=False):
     ver_list = []
     if response_json.get('versions'):
         ver_list = list({x for x in response_json.get('versions', {})})
-    elif response_json.get('time'):
+    if response_json.get('time'):
         for x in response_json.get('time'):
             if x != "modified" and x != "created":
                 ver_list.append(x)
+    ver_list = list(set(ver_list))
     if latest:
         version = response_json.get('dist-tags', {})['latest'] if \
             'latest' in response_json.get('dist-tags', {}) else select_latest_version(ver_list)
