@@ -9,7 +9,8 @@ from f8a_utils.versions import (
     get_versions_for_maven_package,
     get_versions_for_ep,
     get_latest_versions_for_ep,
-    is_pkg_public
+    is_pkg_public,
+    get_versions_and_latest_for_ep
 )
 
 
@@ -32,6 +33,30 @@ def test_is_pkg_public():
 
     val = is_pkg_public("pypi", "scipyssss")
     assert val is False
+
+
+def test_get_versions_and_latest_for_ep():
+    """Test get_versions_and_latest_for_ep function."""
+    obj = get_versions_and_latest_for_ep("npm", "stream-combine")
+    assert obj['versions'] is not None
+    assert "1.0.0" in obj['versions']
+    assert obj['latest_version'] is not None
+
+    obj = get_versions_and_latest_for_ep("pypi", "flask")
+    assert obj['versions'] is not None
+    assert "1.0.2" in obj['versions']
+    assert obj['latest_version'] is not None
+
+    obj = get_versions_and_latest_for_ep("maven", "tomcat:catalina")
+    assert obj['versions'] is not None
+    assert "4.0.4" in obj['versions']
+    assert obj['latest_version'] is not None
+
+    with pytest.raises(ValueError):
+        get_versions_and_latest_for_ep("maven", None)
+
+    with pytest.raises(ValueError):
+        get_versions_and_latest_for_ep("blah-blah", "abc")
 
 
 def test_get_versions_for_npm_package():

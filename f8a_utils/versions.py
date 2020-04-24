@@ -9,6 +9,27 @@ from f8a_version_comparator.comparable_version import ComparableVersion
 _logger = logging.getLogger(__name__)
 
 
+def get_versions_and_latest_for_ep(ecosystem, package_name):
+    """Get all versions for given (ecosystem, package).
+
+    :param ecosystem: str, ecosystem name
+    :param package_name: str, package name
+    :return json, list of versions and latest version
+    """
+    if package_name is None:
+        raise ValueError('Package name is not provided')
+
+    # check against the supported ecosystems
+    if ecosystem == 'npm':
+        return get_versions_for_npm_package(package_name, dual_values=True)
+    if ecosystem == 'pypi':
+        return get_versions_for_pypi_package(package_name, dual_values=True)
+    if ecosystem == 'maven':
+        return get_versions_for_maven_package(package_name, dual_values=True)
+    else:
+        raise ValueError('Unsupported ecosystem: {e}'.format(e=ecosystem))
+
+
 def get_versions_for_ep(ecosystem, package_name):
     """Get all versions for given (ecosystem, package).
 
@@ -60,11 +81,12 @@ def get_latest_versions_for_ep(ecosystem, package_name):
     return version
 
 
-def get_versions_for_npm_package(package_name, latest=False):
+def get_versions_for_npm_package(package_name, latest=False, dual_values=False):
     """Get all versions for given NPM package.
 
     :param package_name: str, package name
     :param latest: boolean value, to return only the latest version
+    :param dual_values: boolean value, to return both version list and latest version
     :return list, list of versions
     """
     url = 'https://registry.npmjs.org/{pkg_name}'.format(
@@ -95,6 +117,11 @@ def get_versions_for_npm_package(package_name, latest=False):
             if x != "modified" and x != "created":
                 ver_list.append(x)
     ver_list = list(set(ver_list))
+    if dual_values:
+        version = response_json.get('dist-tags', {})['latest'] if \
+            'latest' in response_json.get('dist-tags', {}) else select_latest_version(ver_list)
+        return {'versions': ver_list,
+                'latest_version': version}
     if latest:
         version = response_json.get('dist-tags', {})['latest'] if \
             'latest' in response_json.get('dist-tags', {}) else select_latest_version(ver_list)
@@ -102,11 +129,12 @@ def get_versions_for_npm_package(package_name, latest=False):
     return ver_list
 
 
-def get_versions_for_pypi_package(package_name, latest=False):
+def get_versions_for_pypi_package(package_name, latest=False, dual_values=False):
     """Get all versions for given PyPI package.
 
     :param package_name: str, package name
     :param latest: boolean value, to return only the latest version
+    :param dual_values: boolean value, to return both version list and latest version
     :return list, list of versions
     """
     pypi_package_url = 'https://pypi.python.org/pypi/{pkg_name}/json'.format(
@@ -122,6 +150,12 @@ def get_versions_for_pypi_package(package_name, latest=False):
 
     ver_list = list({x for x in response.json().get('releases', {})})
 
+    if dual_values:
+        version = response.json().get('info', {})['version'] if \
+            'version' in response.json().get('info', {}) else select_latest_version(ver_list)
+        return {'versions': ver_list,
+                'latest_version': version}
+
     if latest:
         version = response.json().get('info', {})['version'] if \
             'version' in response.json().get('info', {}) else select_latest_version(ver_list)
@@ -129,11 +163,12 @@ def get_versions_for_pypi_package(package_name, latest=False):
     return ver_list
 
 
-def get_versions_for_maven_package(package_name, latest=False):
+def get_versions_for_maven_package(package_name, latest=False, dual_values=False):
     """Get all versions for given package from Maven Central.
 
     :param package_name: str, package name
     :param latest: boolean value, to return only the latest version
+    :param dual_values: boolean value, to return both version list and latest version
     :return list, list of versions
     """
     try:
@@ -163,6 +198,11 @@ def get_versions_for_maven_package(package_name, latest=False):
             _logger.info(
                 'Unable to fetch versions for package {pkg_name}'.format(pkg_name=package_name)
             )
+
+        if dual_values:
+            version = version if version else select_latest_version(list(versions))
+            return {'versions': list(versions),
+                    'latest_version': version}
         if latest:
             version = version if version else select_latest_version(list(versions))
             return version
