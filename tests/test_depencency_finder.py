@@ -57,7 +57,7 @@ def test_scan_and_find_dependencies_pypi_pylist_as_bytes():
     assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 1
 
 
-def test_scan_and_find_dependencies_maven():
+def test_scan_and_find_dependencies_maven_with_transitives():
     """Test scan_and_find_dependencies function for Maven."""
     manifests = [{
         "filename": "dependencies.txt",
@@ -71,7 +71,7 @@ def test_scan_and_find_dependencies_maven():
     assert len(resolved['deps']) == 15
 
 
-def test_scan_and_find_dependencies_maven_manifest_as_bytes():
+def test_scan_and_find_dependencies_maven_without_transitives():
     """Test scan_and_find_dependencies function for Maven."""
     # file containing content should be opened as binary stream
     manifests = [{
@@ -113,12 +113,49 @@ def test_scan_and_find_dependencies_maven_invalid_coordinates():
         assert res
 
 
+def test_scan_and_find_dependencies_maven_ignore_test_deps():
+    """Test scan_and_find_dependencies function for Maven."""
+    manifests = [{
+        "filename": "dependencies.txt",
+        "filepath": "/bin/local",
+        "content": open(str(Path(__file__).parent / "data/dependencies.txt")).read()
+    }]
+    res = DependencyFinder().scan_and_find_dependencies("maven", manifests, "true")
+    assert "result" in res
+
+    # There are total 9 packages, but 4 are mandatory packages.
+    assert 4 == len(res['result'][0]['details'][0]['_resolved'])
+
+    # Packages expected are
+    mandatory_packages = [
+        'io.vertx:vertx-core',
+        'io.vertx:vertx-web',
+        'io.vertx:vertx-health-check',
+        'io.vertx:vertx-web-client'
+    ]
+
+    # Pacakge not expected are
+    test_packages = [
+        'io.vertx:vertx-unit',
+        'junit:junit',
+        'org.assertj:assertj-core',
+        'io.rest-assured:rest-assured',
+        'org.arquillian.cube:arquillian-cube-openshift-starter'
+    ]
+
+    # Check that only non-test packages are present.
+    for package in res['result'][0]['details'][0]['_resolved']:
+        assert package['package'] in mandatory_packages
+        assert package['package'] not in test_packages
+
+
 if __name__ == '__main__':
     test_scan_and_find_dependencies_npm()
     test_scan_and_find_dependencies_npm_npm_list_as_bytes()
     test_scan_and_find_dependencies_pypi()
     test_scan_and_find_dependencies_pypi_pylist_as_bytes()
-    test_scan_and_find_dependencies_maven()
-    test_scan_and_find_dependencies_maven_manifest_as_bytes()
-    test_scan_and_find_dependencies_maven_various_ncols()
+    test_scan_and_find_dependencies_maven_with_transitives()
+    test_scan_and_find_dependencies_maven_without_transitives()
     test_scan_and_find_dependencies_maven_invalid_coordinates()
+    test_scan_and_find_dependencies_maven_various_ncols()
+    test_scan_and_find_dependencies_maven_ignore_test_deps()
