@@ -1,4 +1,6 @@
 """Tests for classes from depencency_finder module."""
+import json
+import unittest
 
 from f8a_utils.dependency_finder import DependencyFinder
 from pathlib import Path
@@ -42,6 +44,75 @@ def test_scan_and_find_dependencies_pypi():
     assert "result" in res
     assert res['result'][0]['details'][0]['_resolved'][0]['package'] == "django"
     assert len(res['result'][0]['details'][0]['_resolved'][0]['deps']) == 1
+
+
+def test_scan_and_find_dependencies_golang():
+    """Test scan_and_find_dependencies function for golang."""
+    manifests = [{
+        "filename": "gograph.txt",
+        "filepath": "/bin/local",
+        "content": open(str(Path(__file__).parent / "data/gograph.txt")).read()
+    }]
+    with open(str(Path(__file__).parent / "data/golang_dep_tree.json")) as fp:
+        dep_tree = json.load(fp)
+    res = DependencyFinder().scan_and_find_dependencies("golang", manifests, "true")
+    assert res == dep_tree
+
+
+class TestDependencyFinder(unittest.TestCase):
+    """Test class."""
+
+    def test_scan_and_find_dependencies_golang_empty_input(self):
+        """Test scan_and_find_dependencies function for golang Empty."""
+        manifests = [{
+            "filename": "gograph.txt",
+            "filepath": "/bin/local",
+            "content": open(str(Path(__file__).parent / "data/gograph_empty.txt")).read()
+        }]
+        res = DependencyFinder().scan_and_find_dependencies
+        self.assertRaises(ValueError, res, "golang", manifests, "true")
+
+    def test_scan_and_find_dependencies_golang_only_direct(self):
+        """Test scan_and_find_dependencies function for golang Only Direct Deps."""
+        manifests = [{
+            "filename": "gograph.txt",
+            "filepath": "/bin/local",
+            "content": open(str(Path(__file__).parent / "data/gograph_only_direct.txt")).read()
+        }]
+        with open(str(Path(__file__).parent / "data/golist_response_only_direct.json")) as fp:
+            ideal_response = json.load(fp)
+        res = DependencyFinder().scan_and_find_dependencies("golang", manifests, "true")
+        self.assertEqual(res, ideal_response)
+
+
+def test_parse_go_string():
+    """Test for Parse go string."""
+    ideal_res = {'from': 'github.com/hashicorp/consul/sdk@v0.1.1',
+                 'package': 'github.com/hashicorp/consul/sdk',
+                 'given_version': 'v0.1.1',
+                 'is_semver': True,
+                 'version': '0.1.1'}
+    res = DependencyFinder().parse_go_string('github.com/hashicorp/consul/sdk@v0.1.1')
+    assert res == ideal_res
+
+
+def test_clean_version():
+    """Test clean version."""
+    is_semver, cleaned_vr = DependencyFinder().clean_version('v0.0.0-20190718012654-fb15b899a751')
+    assert is_semver
+    assert cleaned_vr == '0.0.0-20190718012654-fb15b899a751'
+    is_semver, cleaned_vr = DependencyFinder().clean_version('v2.1.4+incompatible')
+    assert is_semver
+    assert cleaned_vr == '2.1.4'
+    is_semver, cleaned_vr = DependencyFinder().clean_version('v0.20.1-beta')
+    assert is_semver
+    assert cleaned_vr == '0.20.1-beta'
+    is_semver, cleaned_vr = DependencyFinder().clean_version('v32$@12')
+    assert not is_semver
+    assert cleaned_vr == '32$@12'
+    is_semver, cleaned_vr = DependencyFinder().clean_version('v1.1.1-dev1')
+    assert is_semver
+    assert cleaned_vr == '1.1.1-dev1'
 
 
 def test_scan_and_find_dependencies_pypi_pylist_as_bytes():
@@ -106,7 +177,7 @@ def test_scan_and_find_dependencies_maven_invalid_coordinates():
         "filename": "dependencies.txt",
         "filepath": "/bin/local",
         "content":
-        open(str(Path(__file__).parent / "data/dependencies_invalid_coordinates.txt")).read()
+            open(str(Path(__file__).parent / "data/dependencies_invalid_coordinates.txt")).read()
     }]
     with pytest.raises(ValueError):
         res = DependencyFinder().scan_and_find_dependencies("maven", manifests, "true")
