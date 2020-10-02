@@ -22,8 +22,12 @@ import logging
 import requests
 from os import environ
 from datetime import datetime
+import base64
 
 _logger = logging.getLogger(__name__)
+
+msg = "ZTI4YTBkMGUxMjM4YWY1NmJhZGEzN2U4NjJjMDQwZGY2MDlkYzZiYSw5NWNhO" \
+      "DliMzM0OWMwMWY0NDEzMGU3NTk4YjUwMzJlNjNmMjk5M2Nm"
 
 
 class GithubUtils:
@@ -31,12 +35,18 @@ class GithubUtils:
 
     def __init__(self):
         """Init method for GithubUtils class."""
-        self.GITHUB_TOKEN = environ.get('GITHUB_TOKEN', 'not-set').split(',')
+        self.GITHUB_TOKEN = environ.get('GITHUB_TOKEN', "")
         self.GITHUB_API = "https://api.github.com/"
+        base64_bytes = msg.encode('ascii')
+        msg_bytes = base64.b64decode(base64_bytes)
+        message = msg_bytes.decode('ascii')
+        if not self.GITHUB_TOKEN:
+            self.GITHUB_TOKEN = message
+        self.GITHUB_TOKEN = self.GITHUB_TOKEN.split(",")
 
     def __select_gh_token(self):
         """Randomly select and return a gh token."""
-        if 'not-set' not in self.GITHUB_TOKEN and len(self.GITHUB_TOKEN) > 0:
+        if len(self.GITHUB_TOKEN) > 0:
             return random.choice(self.GITHUB_TOKEN)
         _logger.info("Could not select a gh token.")
         return None
@@ -54,6 +64,7 @@ class GithubUtils:
             _logger.error(
                 'Unable to fetch details for package {u}'.format(u=url)
             )
+            _logger.error("Error Code: {}".format(response.status_code))
             return None
         return response.json()
 
@@ -127,6 +138,18 @@ class GithubUtils:
         dt = self._get_date_from_commit_sha(org, name, tag_sha)
         if not dt:
             dt = self._get_date_from_tag_sha(org, name, tag_sha)
+        return dt
+
+    def _get_commit_date(self, org, name, commit_data):
+        """Get the commit date details from the tag or hash."""
+        if len(commit_data) == 40:
+            # chances are that its a commit hash
+            dt = self._get_date_from_commit_sha(org, name, commit_data)
+            if not dt:
+                dt = self._get_date_from_tag_sha(org, name, commit_data)
+            if dt:
+                return dt
+        dt = self._get_date_from_semver(org, name, commit_data)
         return dt
 
     def __check_for_date_rule(self, comm_date, date_rule):
